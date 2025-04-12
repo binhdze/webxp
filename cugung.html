@@ -19,7 +19,96 @@
     <link rel="stylesheet" href="style.css">
 
 </head>
-
+<script>
+    // Hàm định dạng tiền
+    function formatVND(number) {
+        return 'VNĐ ' + number.toLocaleString();
+    }
+    
+    // Biến để lưu số lượng sản phẩm trong giỏ
+    let cartCount = 0;
+    
+    // Biến để lưu tổng tiền trong giỏ
+    let subtotal = 0;
+    
+    // Cập nhật số lượng giỏ hàng
+    function updateCartCount() {
+        const cartCountElement = document.getElementById('cart-count');
+        cartCountElement.textContent = cartCount; // Cập nhật lại số lượng trong giỏ hàng
+    }
+    
+    // Tính lại tổng tiền
+    function updateCartSummary() {
+        const totalElement = document.getElementById('total');
+        const subtotalElement = document.getElementById('subtotal');
+    
+        const discountRate = 0.15;
+        const deliveryCost = 0; // miễn phí vận chuyển
+    
+        const discountAmount = subtotal * discountRate;
+        const total = subtotal - discountAmount + deliveryCost;
+    
+        subtotalElement.textContent = formatVND(subtotal); // Cập nhật subtotal
+        totalElement.textContent = formatVND(total); // Cập nhật total
+    }
+    
+    // Đợi DOM tải xong
+    document.addEventListener('DOMContentLoaded', function () {
+        const cartList = document.querySelector('.cart-list');
+        const cartCountElement = document.getElementById('cart-count');
+        let count = 0;
+    
+        // Thêm sản phẩm vào giỏ hàng
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+    
+                const name = this.dataset.name;
+                const price = parseInt(this.dataset.price); // Giá sản phẩm
+                const img = this.dataset.img;
+    
+                // Tạo phần tử giỏ hàng
+                const itemHTML = `
+                    <div class="single-cart-item">
+                        <span class="product-remove">×</span>
+                        <img src="${img}" class="cart-thumb" alt="">
+                        <div class="cart-item-desc">
+                            <h6>${name}</h6>
+                            <p class="price">VNĐ ${price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+    
+                // Thêm sản phẩm vào giỏ hàng
+                cartList.insertAdjacentHTML('beforeend', itemHTML);
+    
+                // Cập nhật số lượng và tổng tiền
+                cartCount++;
+                subtotal += price;
+                updateCartCount();
+                updateCartSummary();
+            });
+        });
+    
+        // Xóa sản phẩm khi click nút ×
+        cartList.addEventListener('click', function (e) {
+            if (e.target.classList.contains('product-remove')) {
+                const item = e.target.closest('.single-cart-item');
+                const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+    
+                // Xóa sản phẩm
+                item.remove();
+    
+                // Cập nhật số lượng và tổng tiền
+                cartCount = Math.max(0, cartCount - 1);
+                subtotal = Math.max(0, subtotal - price);
+                updateCartCount();
+                updateCartSummary();
+            }
+        });
+    });
+    
+    </script>
 <body>
     <!-- ##### Header Area Start ##### -->
     <header class="header_area">
@@ -74,7 +163,10 @@
                 </div>
                 <!-- Cart Area -->
                 <div class="cart-area">
-                    <a href="#" id="essenceCartBtn"><img src="img/core-img/bag.svg" alt=""> <span>0</span></a>
+                    <a href="#" id="essenceCartBtn">
+                        <img src="img/core-img/bag.svg" alt="">
+                        <span id="cart-count">0</span> <!-- Hiển thị số lượng sản phẩm trong giỏ -->
+                    </a>
                 </div>
             </div>
 
@@ -93,21 +185,18 @@
         <div class="cart-content d-flex">
 
             <!-- Cart List Area -->
-           
-
-                <!-- Single Cart Item -->
-               
-        
+            <div class="cart-list">
+                <!-- Sản phẩm sẽ được thêm vào đây -->
+            </div>
 
             <!-- Cart Summary -->
             <div class="cart-amount-summary">
-
                 <h2>Summary</h2>
                 <ul class="summary-table">
-                    <li><span>subtotal:</span> <span>$0</span></li>
-                    <li><span>delivery:</span> <span>Free</span></li>
-                    <li><span>discount:</span> <span>-15%</span></li>
-                    <li><span>total:</span> <span>VNĐ 0</span></li>
+                    <li><span>subtotal:</span> <span id="subtotal">VNĐ 0</span></li>
+                    <li><span>delivery:</span> <span id="delivery">Miễn phí</span></li>
+                    <li><span>discount:</span> <span id="discount">-15%</span></li>
+                    <li><span>total:</span> <span id="total">VNĐ 0</span></li>
                 </ul>
                 <div class="checkout-btn mt-100">
                     <a href="checkout.html" class="btn essence-btn">check out</a>
@@ -117,52 +206,49 @@
     </div>
     <!-- ##### Right Side Cart End ##### -->
 
-    <!-- ##### Breadcumb Area Start ##### -->
-    <div class="breadcumb_area breadcumb-style-two bg-img" style="background-image: url(img/banner3.png);">
-        <div class="container h-100">
-            <div class="row h-100 align-items-center">
-                <div class="col-12">
-                    <div class="page-title text-center">
-                        <h2>Giới thiệu thương hiệu Soap & Soul</h2>
-                    </div>
-                </div>
+    <!-- ##### Single Product Details Area Start ##### -->
+    <section class="single_product_details_area d-flex align-items-center">
+
+        <!-- Single Product Thumb -->
+        <div class="single_product_thumb clearfix">
+            <div class="product_thumbnail_slides owl-carousel">
+                <img src="img/gung1.jpg" alt="">
+                <img src="img/XPgung.jpg" alt="">
+                
             </div>
         </div>
-    </div>
-    <!-- ##### Breadcumb Area End ##### -->
 
-    <!-- ##### Blog Wrapper Area Start ##### -->
-    <style>
-        .blog-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 80vh; /* Chiều cao toàn màn hình */
-            text-align: center;
-            padding: 10px;
-            background-color: #fdfdfd;
-            font-family: 'Segoe UI', sans-serif;
-        }
-    
-        .intro-text {
-            max-width: 1200px;
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #333;
-        }
-    </style>
-    
-    <div class="blog-wrapper">
-        <div class="intro-text">
-           
-            <h1 style="font-size: 50;">
-                Soap & Soul là thương hiệu mỹ phẩm thiên nhiên mang đến sự kết hợp hoàn hảo giữa chăm sóc cơ thể và nuôi dưỡng tâm hồn. 
-                Chúng tôi tin rằng mỗi sản phẩm không chỉ làm sạch mà còn lan tỏa sự thư giãn, an yên trong từng khoảnh khắc. 
-                Với nguyên liệu hữu cơ, quy trình thủ công và cam kết bảo vệ môi trường, Soap & Soul là sự lựa chọn tinh tế cho những ai yêu cái đẹp bền vững.
-            </h1>
+        <!-- Single Product Description -->
+        <div class="single_product_desc clearfix">
+          
+            <a href="cart.html">
+                <h2>Xà phòng củ gừng</h2>
+            </a>
+            <p class="product-price">VNĐ 30.000</p>
+            <p class="product-desc">Xà phòng củ gừng là sự kết hợp giữa tinh chất gừng tươi và các thành phần tự nhiên, mang lại cảm giác ấm áp, thư giãn mỗi khi sử dụng. Gừng nổi bật với khả năng kháng khuẩn, kháng viêm, giúp làm sạch da, giảm mùi cơ thể hiệu quả và kích thích lưu thông máu dưới da. Bên cạnh đó, xà phòng gừng còn hỗ trợ làm mềm da, giảm căng thẳng và đem lại cảm giác dễ chịu, đặc biệt phù hợp khi sử dụng vào buổi sáng hoặc sau một ngày làm việc mệt mỏi. Đây là lựa chọn lý tưởng cho những ai yêu thích sản phẩm thiên nhiên, an toàn và tốt cho sức khỏe làn da.</p>
+
+            <!-- Form -->
+            <form class="cart-form clearfix" method="post">
+                <!-- Select Box -->
+                
+                <!-- Cart & Favourite Box -->
+                <div class="cart-fav-box d-flex align-items-center">
+                    <!-- Cart -->
+                    <div class="add-to-cart-btn">
+                        <a href="#" class="btn essence-btn add-to-cart"
+                           data-name="Xà phòng củ gừng"
+                           data-price="30000"
+                           data-img="img/gung1.jpg">Thêm vào giỏ hàng</a>
+                    </div>
+                    <!-- Favourite -->
+                    <div class="product-favourite ml-4">
+                        <a href="#" class="favme fa fa-heart"></a>
+                    </div>
+                </div>
+            </form>
         </div>
-    </div>
-    <!-- ##### Blog Wrapper Area End ##### -->
+    </section>
+    <!-- ##### Single Product Details Area End ##### -->
 
     <!-- ##### Footer Area Start ##### -->
     <footer class="footer_area clearfix">
@@ -180,7 +266,7 @@
                         <!-- Footer Menu -->
                         <div class="footer_menu">
                             <ul>
-                                <li><a href="shop.html">Shop</a></li>
+                                <li><a href="shop.html">Sản phẩm</a></li>
                                 <li><a href="blog.html">Giới thiệu</a></li>
                                 <li><a href="contact.html">Liên hệ</a></li>
                             </ul>
@@ -230,21 +316,17 @@
                     </div>
                 </div>
             </div>
-            
             <div class="row mt-5">
                 <div class="col-md-12 text-center">
                     <p>
                         <!--  Template is licensed under CC BY 3.0. -->
-    Copyright &copy; All rights reserved | Made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="#" target="_blank">Siddique</a>
+    Copyright &copy; All rights reserved | Made by <a href="#" target="_blank">ThaiBinh</a>
     <!-- . Template is licensed under CC BY 3.0. -->
                     </p>
                 </div>
             </div>
-            
+
         </div>
-
-
-
     </footer>
     <!-- ##### Footer Area End ##### -->
 

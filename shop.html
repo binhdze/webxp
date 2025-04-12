@@ -9,8 +9,16 @@
     <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
     <!-- Title  -->
-    <title>Essence - Fashion Ecommerce Template</title>
+    <title>Soap & Soul</title>
+ 
+<!-- Thêm thư viện jQuery và jQuery UI -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <!-- Favicon  -->
     <link rel="icon" href="img/core-img/favicon.ico">
 
@@ -20,95 +28,119 @@
 
 </head>
 <script>
-    // Hàm định dạng tiền
-    function formatVND(number) {
-        return 'VNĐ ' + number.toLocaleString();
-    }
-    
-    // Biến để lưu số lượng sản phẩm trong giỏ
-    let cartCount = 0;
-    
-    // Biến để lưu tổng tiền trong giỏ
-    let subtotal = 0;
-    
-    // Cập nhật số lượng giỏ hàng
-    function updateCartCount() {
-        const cartCountElement = document.getElementById('cart-count');
-        cartCountElement.textContent = cartCount; // Cập nhật lại số lượng trong giỏ hàng
-    }
-    
-    // Tính lại tổng tiền
-    function updateCartSummary() {
-        const totalElement = document.getElementById('total');
-        const subtotalElement = document.getElementById('subtotal');
-    
-        const discountRate = 0.15;
-        const deliveryCost = 0; // miễn phí vận chuyển
-    
-        const discountAmount = subtotal * discountRate;
-        const total = subtotal - discountAmount + deliveryCost;
-    
-        subtotalElement.textContent = formatVND(subtotal); // Cập nhật subtotal
-        totalElement.textContent = formatVND(total); // Cập nhật total
-    }
-    
-    // Đợi DOM tải xong
-    document.addEventListener('DOMContentLoaded', function () {
-        const cartList = document.querySelector('.cart-list');
-        const cartCountElement = document.getElementById('cart-count');
-        let count = 0;
-    
-        // Thêm sản phẩm vào giỏ hàng
-        document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-    
-                const name = this.dataset.name;
-                const price = parseInt(this.dataset.price); // Giá sản phẩm
-                const img = this.dataset.img;
-    
-                // Tạo phần tử giỏ hàng
-                const itemHTML = `
-                    <div class="single-cart-item">
-                        <span class="product-remove">×</span>
-                        <img src="${img}" class="cart-thumb" alt="">
-                        <div class="cart-item-desc">
-                            <h6>${name}</h6>
-                            <p class="price">VNĐ ${price.toLocaleString()}</p>
-                        </div>
+   // Hàm định dạng tiền
+function formatVND(number) {
+    return 'VNĐ ' + number.toLocaleString();
+}
+
+// Biến giỏ hàng
+let cartCount = 0;
+let subtotal = 0;
+
+// Cập nhật số lượng và tổng tiền
+function updateCartCount() {
+    document.getElementById('cart-count').textContent = cartCount;
+}
+
+function updateCartSummary() {
+    const discountRate = 0.15;
+    const deliveryCost = 0;
+    const discountAmount = subtotal * discountRate;
+    const total = subtotal - discountAmount + deliveryCost;
+
+    document.getElementById('subtotal').textContent = formatVND(subtotal);
+    document.getElementById('total').textContent = formatVND(total);
+}
+
+// Chờ DOM sẵn sàng
+document.addEventListener('DOMContentLoaded', function () {
+    const cartList = document.querySelector('.cart-list');
+
+    // Thêm sản phẩm vào giỏ
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const name = this.dataset.name;
+            const price = parseInt(this.dataset.price);
+            const img = this.dataset.img;
+
+            const itemHTML = `
+                <div class="single-cart-item">
+                    <span class="product-remove">×</span>
+                    <img src="${img}" class="cart-thumb" alt="">
+                    <div class="cart-item-desc">
+                        <h6>${name}</h6>
+                        <p class="price">VNĐ ${price.toLocaleString()}</p>
                     </div>
-                `;
-    
-                // Thêm sản phẩm vào giỏ hàng
-                cartList.insertAdjacentHTML('beforeend', itemHTML);
-    
-                // Cập nhật số lượng và tổng tiền
-                cartCount++;
-                subtotal += price;
-                updateCartCount();
-                updateCartSummary();
-            });
-        });
-    
-        // Xóa sản phẩm khi click nút ×
-        cartList.addEventListener('click', function (e) {
-            if (e.target.classList.contains('product-remove')) {
-                const item = e.target.closest('.single-cart-item');
-                const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
-    
-                // Xóa sản phẩm
-                item.remove();
-    
-                // Cập nhật số lượng và tổng tiền
-                cartCount = Math.max(0, cartCount - 1);
-                subtotal = Math.max(0, subtotal - price);
-                updateCartCount();
-                updateCartSummary();
-            }
+                </div>
+            `;
+
+            cartList.insertAdjacentHTML('beforeend', itemHTML);
+
+            cartCount++;
+            subtotal += price;
+            updateCartCount();
+            updateCartSummary();
         });
     });
-    
-    </script>
+
+    // Xóa sản phẩm khỏi giỏ
+    cartList.addEventListener('click', function (e) {
+        if (e.target.classList.contains('product-remove')) {
+            const item = e.target.closest('.single-cart-item');
+            const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+
+            item.remove();
+            cartCount = Math.max(0, cartCount - 1);
+            subtotal = Math.max(0, subtotal - price);
+            updateCartCount();
+            updateCartSummary();
+        }
+    });
+
+    // Lọc sản phẩm
+    const sliderMin = document.querySelector('.slider-range-price');
+    const rangePrice = document.querySelector('.range-price');
+    const products = document.querySelectorAll('.single-product-wrapper');
+
+    // Cấu hình thanh trượt với jQuery UI
+    $(sliderMin).slider({
+        min: 15000, 
+        max: 125000,
+        values: [15000, 125000],
+        slide: function(event, ui) {
+            const minValue = ui.values[0];
+            const maxValue = ui.values[1];
+
+            // Cập nhật giá trị range
+            rangePrice.textContent = `Range: VNĐ ${minValue.toLocaleString()} - VNĐ ${maxValue.toLocaleString()}`;
+
+            // Lọc sản phẩm
+            filterProducts(minValue, maxValue);
+        }
+    });
+
+    // Hàm lọc sản phẩm dựa trên giá
+    function filterProducts(minPrice, maxPrice) {
+        products.forEach(product => {
+            const priceElement = product.querySelector('.product-price');
+            const price = parseInt(priceElement.textContent.replace('VNĐ', '').replace('.', '').trim()); // Convert price to number
+
+            if (price >= minPrice && price <= maxPrice) {
+                product.style.display = 'block'; // Hiển thị sản phẩm nếu giá phù hợp
+            } else {
+                product.style.display = 'none'; // Ẩn sản phẩm nếu giá không phù hợp
+            }
+        });
+    }
+
+    // Gọi filter lần đầu nếu có giá trị mặc định
+    filterProducts(15000, 125000);
+});
+
+</script>
+
 <body>
     <!-- ##### Header Area Start ##### -->
     <header class="header_area">
@@ -136,7 +168,7 @@
                             <li>
                                 <a href="shop.html">Sản phẩm</a>
                             </li>
-                            <li><a href="blog.html">Blog</a></li>
+                            <li><a href="blog.html">Giới thiệu</a></li>
                             <li><a href="contact.html">Liên hệ</a></li>
                         </ul>
                     </div>
@@ -241,15 +273,15 @@
 
                             <div class="widget-desc">
                                 <div class="slider-range">
-                                    <div data-unit="VNĐ " data-min="15000" data-max="60000" 
+                                    <div data-unit="VNĐ " data-min="15000" data-max="75000" 
                                     class="slider-range-price ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" 
-                                    data-value-min="15000" data-value-max="60000" 
+                                    data-value-min="15000" data-value-max="75000" 
                                     data-label-result="Range:">
                                         <div class="ui-slider-range ui-widget-header ui-corner-all"></div>
                                         <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>
                                         <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>
                                     </div>
-                                    <div class="range-price">Range: VNĐ 15.000 - VNĐ 60.000</div>
+                                    <div class="range-price">Range: VNĐ 15.000 - VNĐ 75.000</div>
                                 </div>
                             </div>
                         </div>
@@ -324,7 +356,7 @@
                             </div>
                             <!-- Product Description -->
                             <div class="product-description">
-                                <a href="single-product-details.html">
+                                <a href="lachanh.html">
                                     <h6>Xà phòng lá chanh</h6>
                                 </a>
                                 <p class="product-price">VNĐ 35.000</p>
@@ -363,7 +395,7 @@
                                     </div>
                                     <!-- Product Description -->
                                     <div class="product-description">
-                                        <a href="single-product-details.html">
+                                        <a href="cunghe.html">
                                             <h6>Xà phòng củ nghệ</h6>
                                         </a>
                                         <p class="product-price">
@@ -406,8 +438,8 @@
                                         </div>
                                     </div>
                                     <!-- Product Description -->
-                                    <div class="product-description">
-                                        <a href="single-product-details.html">
+                                    <div class="product-description" >
+                                        <a href="cugung.html">
                                             <h6>Xà phòng củ gừng</h6>
                                         </a>
                                         <p class="product-price">VNĐ 30.000</p>
@@ -449,7 +481,7 @@
                                     </div>
                                     <!-- Product Description -->
                                     <div class="product-description">
-                                        <a href="single-product-details.html">
+                                        <a href="thantre.html">
                                             <h6>Xà phòng than tre</h6>
                                         </a>
                                         <p class="product-price">VNĐ 35.000</p>
@@ -499,13 +531,15 @@
                     <div class="single_widget_area d-flex mb-30">
                         <!-- Logo -->
                         <div class="footer-logo mr-50">
-                            <a href="#"><img src="img/core-img/logo2.png" alt=""></a>
+                            <a href="index.html" class="logo" style="font-size: 24px; font-weight: bold; font-family: 'Arial', sans-serif; color: #ffffff;">
+                                Soap&amp;Soul
+                            </a>
                         </div>
                         <!-- Footer Menu -->
                         <div class="footer_menu">
                             <ul>
                                 <li><a href="shop.html">Sản phẩm</a></li>
-                                <li><a href="blog.html">Blog</a></li>
+                                <li><a href="blog.html">Giới thiệu</a></li>
                                 <li><a href="contact.html">Liên hệ</a></li>
                             </ul>
                         </div>
