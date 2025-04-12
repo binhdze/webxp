@@ -20,6 +20,21 @@
 
 </head>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    // Lắng nghe sự kiện nhấn nút thanh toán
+    const checkoutButton = document.getElementById('checkout-btn');
+
+    checkoutButton.addEventListener('click', function (e) {
+        e.preventDefault(); // Ngăn chặn hành động mặc định (chuyển hướng tới checkout)
+
+        // Hiển thị thông báo thanh toán thành công
+        alert('Thanh toán thành công!');
+
+        // Quay lại trang index.html
+        window.location.href = 'index.html';
+    });
+});
+
 // Hàm định dạng tiền
 function formatVND(number) {
     return 'VNĐ ' + number.toLocaleString();
@@ -194,17 +209,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 <!-- Sản phẩm sẽ được thêm vào đây -->
             </div>
 
-            <!-- Cart Summary -->
             <div class="cart-amount-summary">
                 <h2>Summary</h2>
                 <ul class="summary-table">
-                    <li><span>subtotal:</span> <span id="subtotal">VNĐ 0</span></li>
-                    <li><span>delivery:</span> <span id="delivery">Miễn phí</span></li>
-                    <li><span>discount:</span> <span id="discount">-15%</span></li>
-                    <li><span>total:</span> <span id="total">VNĐ 0</span></li>
+                    <li><span>Tổng tiền:</span> <span id="subtotal">VNĐ 0</span></li>
+                    <li><span>Phí vận chuyển:</span> <span id="delivery">Miễn phí</span></li>
+                    <li><span>Giảm giá:</span> <span id="discount">-15%</span></li>
+                    <li><span>Thành tiền:</span> <span id="total">VNĐ 0</span></li>
                 </ul>
                 <div class="checkout-btn mt-100">
-                    <a href="checkout.html" class="btn essence-btn">check out</a>
+                    <a href="#" class="btn essence-btn" id="checkout-btn">Thanh toán</a>
                 </div>
             </div>
         </div>
