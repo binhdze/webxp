@@ -19,6 +19,96 @@
     <link rel="stylesheet" href="style.css">
 
 </head>
+<script>
+// Hàm định dạng tiền
+function formatVND(number) {
+    return 'VNĐ ' + number.toLocaleString();
+}
+
+// Biến để lưu số lượng sản phẩm trong giỏ
+let cartCount = 0;
+
+// Biến để lưu tổng tiền trong giỏ
+let subtotal = 0;
+
+// Cập nhật số lượng giỏ hàng
+function updateCartCount() {
+    const cartCountElement = document.getElementById('cart-count');
+    cartCountElement.textContent = cartCount; // Cập nhật lại số lượng trong giỏ hàng
+}
+
+// Tính lại tổng tiền
+function updateCartSummary() {
+    const totalElement = document.getElementById('total');
+    const subtotalElement = document.getElementById('subtotal');
+
+    const discountRate = 0.15;
+    const deliveryCost = 0; // miễn phí vận chuyển
+
+    const discountAmount = subtotal * discountRate;
+    const total = subtotal - discountAmount + deliveryCost;
+
+    subtotalElement.textContent = formatVND(subtotal); // Cập nhật subtotal
+    totalElement.textContent = formatVND(total); // Cập nhật total
+}
+
+// Đợi DOM tải xong
+document.addEventListener('DOMContentLoaded', function () {
+    const cartList = document.querySelector('.cart-list');
+    const cartCountElement = document.getElementById('cart-count');
+    let count = 0;
+
+    // Thêm sản phẩm vào giỏ hàng
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const name = this.dataset.name;
+            const price = parseInt(this.dataset.price); // Giá sản phẩm
+            const img = this.dataset.img;
+
+            // Tạo phần tử giỏ hàng
+            const itemHTML = `
+                <div class="single-cart-item">
+                    <span class="product-remove">×</span>
+                    <img src="${img}" class="cart-thumb" alt="">
+                    <div class="cart-item-desc">
+                        <h6>${name}</h6>
+                        <p class="price">VNĐ ${price.toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+
+            // Thêm sản phẩm vào giỏ hàng
+            cartList.insertAdjacentHTML('beforeend', itemHTML);
+
+            // Cập nhật số lượng và tổng tiền
+            cartCount++;
+            subtotal += price;
+            updateCartCount();
+            updateCartSummary();
+        });
+    });
+
+    // Xóa sản phẩm khi click nút ×
+    cartList.addEventListener('click', function (e) {
+        if (e.target.classList.contains('product-remove')) {
+            const item = e.target.closest('.single-cart-item');
+            const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+
+            // Xóa sản phẩm
+            item.remove();
+
+            // Cập nhật số lượng và tổng tiền
+            cartCount = Math.max(0, cartCount - 1);
+            subtotal = Math.max(0, subtotal - price);
+            updateCartCount();
+            updateCartSummary();
+        }
+    });
+});
+
+</script>
 
 <body>
     <!-- ##### Header Area Start ##### -->
@@ -87,8 +177,12 @@
                 </div>
                 <!-- Cart Area -->
                 <div class="cart-area">
-                    <a href="#" id="essenceCartBtn"><img src="img/core-img/bag.svg" alt=""> <span>3</span></a>
+                    <a href="#" id="essenceCartBtn">
+                        <img src="img/core-img/bag.svg" alt="">
+                        <span id="cart-count">0</span> <!-- Hiển thị số lượng sản phẩm trong giỏ -->
+                    </a>
                 </div>
+                
             </div>
 
         </div>
@@ -101,72 +195,24 @@
     <div class="right-side-cart-area">
 
         <!-- Cart Button -->
-        <div class="cart-button">
-            <a href="#" id="rightSideCart"><img src="img/core-img/bag.svg" alt=""> <span>3</span></a>
-        </div>
+      
+        
 
         <div class="cart-content d-flex">
 
             <!-- Cart List Area -->
             <div class="cart-list">
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-1.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-2.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-3.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
+                <!-- Sản phẩm sẽ được thêm vào đây -->
             </div>
 
             <!-- Cart Summary -->
             <div class="cart-amount-summary">
-
                 <h2>Summary</h2>
                 <ul class="summary-table">
-                    <li><span>subtotal:</span> <span>$274.00</span></li>
-                    <li><span>delivery:</span> <span>Free</span></li>
-                    <li><span>discount:</span> <span>-15%</span></li>
-                    <li><span>total:</span> <span>$232.00</span></li>
+                    <li><span>subtotal:</span> <span id="subtotal">VNĐ 0</span></li>
+                    <li><span>delivery:</span> <span id="delivery">Miễn phí</span></li>
+                    <li><span>discount:</span> <span id="discount">-15%</span></li>
+                    <li><span>total:</span> <span id="total">VNĐ 0</span></li>
                 </ul>
                 <div class="checkout-btn mt-100">
                     <a href="checkout.html" class="btn essence-btn">check out</a>
@@ -226,20 +272,23 @@
                             </div>
                             <!-- Product Description -->
                             <div class="product-description">
-                            
                                 <a href="single-product-details.html">
                                     <h6>Xà phòng tía tô</h6>
                                 </a>
                                 <p class="product-price">VNĐ 30.000</p>
-
+                            
                                 <!-- Hover Content -->
                                 <div class="hover-content">
                                     <!-- Add to Cart -->
                                     <div class="add-to-cart-btn">
-                                        <a href="#" class="btn essence-btn">Thêm vào giỏ hàng</a>
+                                        <a href="#" class="btn essence-btn add-to-cart"
+                                           data-name="Xà phòng tía tô"
+                                           data-price="30000"
+                                           data-img="img/tiato.jpg">Thêm vào giỏ hàng</a>
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
 
                         <!-- Single Product -->
@@ -256,20 +305,23 @@
                             </div>
                             <!-- Product Description -->
                             <div class="product-description">
-                                
                                 <a href="single-product-details.html">
                                     <h6>Xà phòng lá chanh</h6>
                                 </a>
                                 <p class="product-price">VNĐ 35.000</p>
-
-                                <!-- Hover Content -->
                                 <div class="hover-content">
-                                    <!-- Add to Cart -->
                                     <div class="add-to-cart-btn">
-                                        <a href="#" class="btn essence-btn">Thêm vào giỏ hàng</a>
+                                        <a href="#" class="btn essence-btn add-to-cart"
+                                           data-name="Xà phòng lá chanh"
+                                           data-price="35000"
+                                           data-img="img/chanh (2).jpg">
+                                           Thêm vào giỏ hàng
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            
+                            
                         </div>
 
                         <!-- Single Product -->
@@ -292,20 +344,26 @@
                             </div>
                             <!-- Product Description -->
                             <div class="product-description">
-                                
                                 <a href="single-product-details.html">
                                     <h6>Xà phòng củ nghệ</h6>
                                 </a>
-                                <p class="product-price"><span class="old-price">VNĐ 25.000</span> $55.00</p>
-
+                                <p class="product-price">
+                                    <span class="old-price">VNĐ 55.000</span>
+                                    VNĐ 55.000
+                                </p>
+                            
                                 <!-- Hover Content -->
                                 <div class="hover-content">
                                     <!-- Add to Cart -->
                                     <div class="add-to-cart-btn">
-                                        <a href="#" class="btn essence-btn">Thêm vào giỏ hàng</a>
+                                        <a href="#" class="btn essence-btn add-to-cart"
+                                           data-name="Xà phòng củ nghệ"
+                                           data-price="55000"
+                                           data-img="img/cunghe.jpg">Thêm vào giỏ hàng</a>
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
 
                         <!-- Single Product -->
@@ -328,20 +386,63 @@
                             </div>
                             <!-- Product Description -->
                             <div class="product-description">
-                            
                                 <a href="single-product-details.html">
                                     <h6>Xà phòng củ gừng</h6>
                                 </a>
                                 <p class="product-price">VNĐ 30.000</p>
-
+                            
                                 <!-- Hover Content -->
                                 <div class="hover-content">
                                     <!-- Add to Cart -->
                                     <div class="add-to-cart-btn">
-                                        <a href="#" class="btn essence-btn">Thêm vào giỏ hàng</a>
+                                        <a href="#" class="btn essence-btn add-to-cart"
+                                           data-name="Xà phòng củ gừng"
+                                           data-price="30000"
+                                           data-img="img/gung1.jpg">Thêm vào giỏ hàng</a>
                                     </div>
                                 </div>
                             </div>
+                            
+                            
+                        </div>
+                           <!-- Single Product -->
+                           <div class="single-product-wrapper">
+                            <!-- Product Image -->
+                            <div class="product-img">
+                                <img src="img/than1.jpg" alt="">
+                                <!-- Hover Thumb -->
+                                <img class="hover-img" src="img/thantre.jpg" alt="">
+
+                                <!-- Product Badge -->
+                                <div class="product-badge new-badge">
+                                    <span>New</span>
+                                </div>
+
+                                <!-- Favourite -->
+                                <div class="product-favourite">
+                                    <a href="#" class="favme fa fa-heart"></a>
+                                </div>
+                            </div>
+                            <!-- Product Description -->
+                            <div class="product-description">
+                                <a href="single-product-details.html">
+                                    <h6>Xà phòng than tre</h6>
+                                </a>
+                                <p class="product-price">VNĐ 35.000</p>
+                            
+                                <!-- Hover Content -->
+                                <div class="hover-content">
+                                    <!-- Add to Cart -->
+                                    <div class="add-to-cart-btn">
+                                        <a href="#" class="btn essence-btn add-to-cart"
+                                           data-name="Xà phòng than tre"
+                                           data-price="35000"
+                                           data-img="img/than1.jpg"<a> vào giỏ hàng</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
                         </div>
                     </div>
                 </div>
@@ -368,9 +469,9 @@
                         <!-- Footer Menu -->
                         <div class="footer_menu">
                             <ul>
-                                <li><a href="shop.html">Shop</a></li>
+                                <li><a href="shop.html">Sản phẩm</a></li>
                                 <li><a href="blog.html">Blog</a></li>
-                                <li><a href="contact.html">Contact</a></li>
+                                <li><a href="contact.html">Liên hệ</a></li>
                             </ul>
                         </div>
                     </div>

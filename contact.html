@@ -19,7 +19,96 @@
     <link rel="stylesheet" href="style.css">
 
 </head>
-
+<script>
+    // Hàm định dạng tiền
+    function formatVND(number) {
+        return 'VNĐ ' + number.toLocaleString();
+    }
+    
+    // Biến để lưu số lượng sản phẩm trong giỏ
+    let cartCount = 0;
+    
+    // Biến để lưu tổng tiền trong giỏ
+    let subtotal = 0;
+    
+    // Cập nhật số lượng giỏ hàng
+    function updateCartCount() {
+        const cartCountElement = document.getElementById('cart-count');
+        cartCountElement.textContent = cartCount; // Cập nhật lại số lượng trong giỏ hàng
+    }
+    
+    // Tính lại tổng tiền
+    function updateCartSummary() {
+        const totalElement = document.getElementById('total');
+        const subtotalElement = document.getElementById('subtotal');
+    
+        const discountRate = 0.15;
+        const deliveryCost = 0; // miễn phí vận chuyển
+    
+        const discountAmount = subtotal * discountRate;
+        const total = subtotal - discountAmount + deliveryCost;
+    
+        subtotalElement.textContent = formatVND(subtotal); // Cập nhật subtotal
+        totalElement.textContent = formatVND(total); // Cập nhật total
+    }
+    
+    // Đợi DOM tải xong
+    document.addEventListener('DOMContentLoaded', function () {
+        const cartList = document.querySelector('.cart-list');
+        const cartCountElement = document.getElementById('cart-count');
+        let count = 0;
+    
+        // Thêm sản phẩm vào giỏ hàng
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+    
+                const name = this.dataset.name;
+                const price = parseInt(this.dataset.price); // Giá sản phẩm
+                const img = this.dataset.img;
+    
+                // Tạo phần tử giỏ hàng
+                const itemHTML = `
+                    <div class="single-cart-item">
+                        <span class="product-remove">×</span>
+                        <img src="${img}" class="cart-thumb" alt="">
+                        <div class="cart-item-desc">
+                            <h6>${name}</h6>
+                            <p class="price">VNĐ ${price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+    
+                // Thêm sản phẩm vào giỏ hàng
+                cartList.insertAdjacentHTML('beforeend', itemHTML);
+    
+                // Cập nhật số lượng và tổng tiền
+                cartCount++;
+                subtotal += price;
+                updateCartCount();
+                updateCartSummary();
+            });
+        });
+    
+        // Xóa sản phẩm khi click nút ×
+        cartList.addEventListener('click', function (e) {
+            if (e.target.classList.contains('product-remove')) {
+                const item = e.target.closest('.single-cart-item');
+                const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+    
+                // Xóa sản phẩm
+                item.remove();
+    
+                // Cập nhật số lượng và tổng tiền
+                cartCount = Math.max(0, cartCount - 1);
+                subtotal = Math.max(0, subtotal - price);
+                updateCartCount();
+                updateCartSummary();
+            }
+        });
+    });
+    
+    </script>
 <body>
     <!-- ##### Header Area Start ##### -->
     <header class="header_area">
@@ -45,10 +134,10 @@
                     <div class="classynav">
                         <ul>
                             <li>
-                                <a href="shop.html">Product</a>
+                                <a href="shop.html">Sản phẩm</a>
                             </li>
                             <li><a href="blog.html">Blog</a></li>
-                            <li><a href="contact.html">Contact</a></li>
+                            <li><a href="contact.html">Liên hệ</a></li>
                         </ul>
                     </div>
                     <!-- Nav End -->
@@ -74,7 +163,10 @@
                 </div>
                 <!-- Cart Area -->
                 <div class="cart-area">
-                    <a href="#" id="essenceCartBtn"><img src="img/core-img/bag.svg" alt=""> <span>3</span></a>
+                    <a href="#" id="essenceCartBtn">
+                        <img src="img/core-img/bag.svg" alt="">
+                        <span id="cart-count">0</span> <!-- Hiển thị số lượng sản phẩm trong giỏ -->
+                    </a>
                 </div>
             </div>
 
@@ -96,64 +188,17 @@
 
             <!-- Cart List Area -->
             <div class="cart-list">
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-1.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-2.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Single Cart Item -->
-                <div class="single-cart-item">
-                    <a href="#" class="product-image">
-                        <img src="img/product-img/product-3.jpg" class="cart-thumb" alt="">
-                        <!-- Cart Item Desc -->
-                        <div class="cart-item-desc">
-                          <span class="product-remove"><i class="fa fa-close" aria-hidden="true"></i></span>
-                            <span class="badge">Mango</span>
-                            <h6>Button Through Strap Mini Dress</h6>
-                            <p class="size">Size: S</p>
-                            <p class="color">Color: Red</p>
-                            <p class="price">$45.00</p>
-                        </div>
-                    </a>
-                </div>
+                <!-- Sản phẩm sẽ được thêm vào đây -->
             </div>
 
             <!-- Cart Summary -->
             <div class="cart-amount-summary">
-
                 <h2>Summary</h2>
                 <ul class="summary-table">
-                    <li><span>subtotal:</span> <span>$274.00</span></li>
-                    <li><span>delivery:</span> <span>Free</span></li>
-                    <li><span>discount:</span> <span>-15%</span></li>
-                    <li><span>total:</span> <span>$232.00</span></li>
+                    <li><span>subtotal:</span> <span id="subtotal">VNĐ 0</span></li>
+                    <li><span>delivery:</span> <span id="delivery">Miễn phí</span></li>
+                    <li><span>discount:</span> <span id="discount">-15%</span></li>
+                    <li><span>total:</span> <span id="total">VNĐ 0</span></li>
                 </ul>
                 <div class="checkout-btn mt-100">
                     <a href="checkout.html" class="btn essence-btn">check out</a>
@@ -164,24 +209,35 @@
     <!-- ##### Right Side Cart End ##### -->
 
 
-    <div class="contact-area d-flex align-items-center">
+    <div class="contact-area d-flex flex-wrap align-items-center justify-content-between p-4 gap-4">
 
-        <div class="google-map">
-            <div id="googleMap"></div>
+        <!-- Google Map -->
+        <div class="google-map" style="flex: 1 1 48%; min-width: 300px;">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.5183611688353!2d106.67464837431905!3d10.848122839665727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752952050e0161%3A0x34bb62d5ee89d926!2zVHXhu5VpIFRy4bq7IFRvd2VyICjEkOG6oWkgaOG7jWMgQ8O0bmcgbmdoaeG7h3AgY8ahIHPhu58gTmd1eeG7hW4gVsSDbiBEdW5nKQ!5e0!3m2!1svi!2s!4v1744452489819!5m2!1svi!2s" 
+                width="100%" 
+                height="400" 
+                style="border:0; border-radius: 10px;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
         </div>
-
-        <div class="contact-info">
-            <h2>How to Find Us</h2>
-            <p>Mauris viverra cursus ante laoreet eleifend. Donec vel fringilla ante. Aenean finibus velit id urna vehicula, nec maximus est sollicitudin.</p>
-
-            <div class="contact-address mt-50">
-                <p><span>address:</span> 10 Suffolk st Soho, London, UK</p>
-                <p><span>telephone:</span> +12 34 567 890</p>
-                <p><a href="mailto:contact@essence.com">contact@essence.com</a></p>
+    
+        <!-- Contact Info -->
+        <div class="contact-info" style="flex: 1 1 48%; min-width: 300px;">
+            <h2 class="mb-3">Soap & Soul</h2>
+            <p class="mb-4">Soap and Soul – Sự kết hợp hoàn hảo giữa thiên nhiên và tâm hồn, mang đến làn da mềm mịn, khỏe mạnh mỗi ngày.</p>
+    
+            <div class="contact-address">
+                <p><strong>Địa chỉ:</strong> 10 Nguyễn Văn Dung, phường 6, Gò Vấp, TP Hồ Chí Minh</p>
+                <p><strong>Hotline:</strong> +84 369 181 857</p>
+                <p><strong>Email:</strong>  binhdzne@gmail.com</p>
             </div>
         </div>
-
+    
     </div>
+    
 
     <!-- ##### Footer Area Start ##### -->
     <footer class="footer_area clearfix">
@@ -276,7 +332,7 @@
     <!-- Active js -->
     <script src="js/active.js"></script>
     <!-- Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwuyLRa1uKNtbgx6xAJVmWy-zADgegA2s"></script>
+    <script src="https://maps.app.goo.gl/ztEc7cn3VtTemBSr5"></script>
     <script src="js/map-active.js"></script>
 
 </body>
