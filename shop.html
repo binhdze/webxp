@@ -28,133 +28,133 @@
 
 </head>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    // Lắng nghe sự kiện nhấn nút thanh toán
-    const checkoutButton = document.getElementById('checkout-btn');
+    function formatVND(number) {
+        return 'VNĐ ' + number.toLocaleString();
+    }
 
-    checkoutButton.addEventListener('click', function (e) {
-        e.preventDefault(); // Ngăn chặn hành động mặc định (chuyển hướng tới checkout)
+    let cartCount = 0;
+    let subtotal = 0;
 
-        // Hiển thị thông báo thanh toán thành công
-        alert('Thanh toán thành công!');
+    function updateCartCount() {
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.textContent = cartCount;
+        }
+    }
 
-        // Quay lại trang index.html
-        window.location.href = 'index.html';
-    });
-});
+    function updateCartSummary() {
+        const totalElement = document.getElementById('total');
+        const subtotalElement = document.getElementById('subtotal');
 
-   // Hàm định dạng tiền
-function formatVND(number) {
-    return 'VNĐ ' + number.toLocaleString();
-}
+        const discountRate = 0.15;
+        const deliveryCost = 0; // miễn phí vận chuyển
 
-// Biến giỏ hàng
-let cartCount = 0;
-let subtotal = 0;
+        const discountAmount = subtotal * discountRate;
+        const total = subtotal - discountAmount + deliveryCost;
 
-// Cập nhật số lượng và tổng tiền
-function updateCartCount() {
-    document.getElementById('cart-count').textContent = cartCount;
-}
+        if (subtotalElement) subtotalElement.textContent = formatVND(subtotal);
+        if (totalElement) totalElement.textContent = formatVND(total);
+    }
 
-function updateCartSummary() {
-    const discountRate = 0.15;
-    const deliveryCost = 0;
-    const discountAmount = subtotal * discountRate;
-    const total = subtotal - discountAmount + deliveryCost;
+    function saveCartToLocalStorage() {
+        const cartItems = [];
+        document.querySelectorAll('.single-cart-item').forEach(item => {
+            const name = item.querySelector('h6').textContent;
+            const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+            const img = item.querySelector('img').getAttribute('src');
+            cartItems.push({ name, price, img });
+        });
+        // Lưu các sản phẩm, tổng tiền và số lượng vào localStorage
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        localStorage.setItem('subtotal', subtotal);
+        localStorage.setItem('cartCount', cartCount);
+    }
 
-    document.getElementById('subtotal').textContent = formatVND(subtotal);
-    document.getElementById('total').textContent = formatVND(total);
-}
+    function loadCartFromLocalStorage() {
+        const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        cartCount = parseInt(localStorage.getItem('cartCount')) || 0;
+        subtotal = parseInt(localStorage.getItem('subtotal')) || 0;
 
-// Chờ DOM sẵn sàng
-document.addEventListener('DOMContentLoaded', function () {
-    const cartList = document.querySelector('.cart-list');
+        const cartList = document.querySelector('.cart-list');
+        if (!cartList) return;
 
-    // Thêm sản phẩm vào giỏ
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const name = this.dataset.name;
-            const price = parseInt(this.dataset.price);
-            const img = this.dataset.img;
-
+        storedItems.forEach(item => {
             const itemHTML = `
                 <div class="single-cart-item">
                     <span class="product-remove">×</span>
-                    <img src="${img}" class="cart-thumb" alt="">
+                    <img src="${item.img}" class="cart-thumb" alt="">
                     <div class="cart-item-desc">
-                        <h6>${name}</h6>
-                        <p class="price">VNĐ ${price.toLocaleString()}</p>
+                        <h6>${item.name}</h6>
+                        <p class="price">VNĐ ${item.price.toLocaleString()}</p>
                     </div>
                 </div>
             `;
-
             cartList.insertAdjacentHTML('beforeend', itemHTML);
-
-            cartCount++;
-            subtotal += price;
-            updateCartCount();
-            updateCartSummary();
         });
-    });
 
-    // Xóa sản phẩm khỏi giỏ
-    cartList.addEventListener('click', function (e) {
-        if (e.target.classList.contains('product-remove')) {
-            const item = e.target.closest('.single-cart-item');
-            const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
-
-            item.remove();
-            cartCount = Math.max(0, cartCount - 1);
-            subtotal = Math.max(0, subtotal - price);
-            updateCartCount();
-            updateCartSummary();
-        }
-    });
-
-    // Lọc sản phẩm
-    const sliderMin = document.querySelector('.slider-range-price');
-    const rangePrice = document.querySelector('.range-price');
-    const products = document.querySelectorAll('.single-product-wrapper');
-
-    // Cấu hình thanh trượt với jQuery UI
-    $(sliderMin).slider({
-        min: 15000, 
-        max: 125000,
-        values: [15000, 125000],
-        slide: function(event, ui) {
-            const minValue = ui.values[0];
-            const maxValue = ui.values[1];
-
-            // Cập nhật giá trị range
-            rangePrice.textContent = `Range: VNĐ ${minValue.toLocaleString()} - VNĐ ${maxValue.toLocaleString()}`;
-
-            // Lọc sản phẩm
-            filterProducts(minValue, maxValue);
-        }
-    });
-
-    // Hàm lọc sản phẩm dựa trên giá
-    function filterProducts(minPrice, maxPrice) {
-        products.forEach(product => {
-            const priceElement = product.querySelector('.product-price');
-            const price = parseInt(priceElement.textContent.replace('VNĐ', '').replace('.', '').trim()); // Convert price to number
-
-            if (price >= minPrice && price <= maxPrice) {
-                product.style.display = 'block'; // Hiển thị sản phẩm nếu giá phù hợp
-            } else {
-                product.style.display = 'none'; // Ẩn sản phẩm nếu giá không phù hợp
-            }
-        });
+        updateCartCount();
+        updateCartSummary();
     }
 
-    // Gọi filter lần đầu nếu có giá trị mặc định
-    filterProducts(15000, 125000);
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        const cartList = document.querySelector('.cart-list');
 
+        // Load giỏ hàng từ localStorage
+        loadCartFromLocalStorage();
+
+        // Lắng nghe sự kiện nhấn nút thêm vào giỏ
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const name = this.dataset.name;
+                const price = parseInt(this.dataset.price);
+                const img = this.dataset.img;
+
+                // Thêm sản phẩm vào giỏ hàng
+                const itemHTML = `
+                    <div class="single-cart-item">
+                        <span class="product-remove">×</span>
+                        <img src="${img}" class="cart-thumb" alt="">
+                        <div class="cart-item-desc">
+                            <h6>${name}</h6>
+                            <p class="price">VNĐ ${price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+
+                cartList.insertAdjacentHTML('beforeend', itemHTML);
+
+                // Cập nhật số lượng và tổng tiền
+                cartCount++;
+                subtotal += price;
+
+                updateCartCount();
+                updateCartSummary();
+                saveCartToLocalStorage();
+            });
+        });
+
+        // Lắng nghe sự kiện nhấn nút xóa sản phẩm
+        cartList.addEventListener('click', function (e) {
+            if (e.target.classList.contains('product-remove')) {
+                const item = e.target.closest('.single-cart-item');
+                const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+
+                // Xóa sản phẩm khỏi giỏ hàng
+                item.remove();
+                cartCount = Math.max(0, cartCount - 1);
+                subtotal = Math.max(0, subtotal - price);
+
+                updateCartCount();
+                updateCartSummary();
+                saveCartToLocalStorage();
+            }
+        });
+    });
 </script>
+
+
 
 <body>
     <!-- ##### Header Area Start ##### -->
@@ -245,9 +245,10 @@ document.addEventListener('DOMContentLoaded', function () {
         <li><span>Giảm giá:</span> <span id="discount">-15%</span></li>
         <li><span>Thành tiền:</span> <span id="total">VNĐ 0</span></li>
     </ul>
-    <div class="checkout-btn mt-100">
-        <a href="#" class="btn essence-btn" id="checkout-btn">Thanh toán</a>
-    </div>
+  <div class="checkout-btn mt-100">
+    <a href="checkout.html" class="btn essence-btn" id="checkout-btn">Thanh toán</a>
+</div>
+
 </div>
 
         </div>
@@ -595,11 +596,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="col-12 col-md-6">
                     <div class="single_widget_area">
                         <div class="footer_social_area">
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Pinterest"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Youtube"><i class="fa fa-youtube-play" aria-hidden="true"></i></a>
+                           <a href="https://web.facebook.com/profile.php?id=61573173553936" target="_blank" data-toggle="tooltip" data-placement="top" title="Facebook">
+  <i class="fa fa-facebook" aria-hidden="true"></i>
+</a>
+
+                           
                         </div>
                     </div>
                 </div>

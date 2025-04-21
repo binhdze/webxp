@@ -19,7 +19,101 @@
     <link rel="stylesheet" href="style.css">
 
 </head>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    // Lắng nghe sự kiện nhấn nút thanh toán
+   
+});
 
+    // Hàm định dạng tiền
+    function formatVND(number) {
+        return 'VNĐ ' + number.toLocaleString();
+    }
+    
+    // Biến để lưu số lượng sản phẩm trong giỏ
+    let cartCount = 0;
+    
+    // Biến để lưu tổng tiền trong giỏ
+    let subtotal = 0;
+    
+    // Cập nhật số lượng giỏ hàng
+    function updateCartCount() {
+        const cartCountElement = document.getElementById('cart-count');
+        cartCountElement.textContent = cartCount; // Cập nhật lại số lượng trong giỏ hàng
+    }
+    
+    // Tính lại tổng tiền
+    function updateCartSummary() {
+        const totalElement = document.getElementById('total');
+        const subtotalElement = document.getElementById('subtotal');
+    
+        const discountRate = 0.15;
+        const deliveryCost = 0; // miễn phí vận chuyển
+    
+        const discountAmount = subtotal * discountRate;
+        const total = subtotal - discountAmount + deliveryCost;
+    
+        subtotalElement.textContent = formatVND(subtotal); // Cập nhật subtotal
+        totalElement.textContent = formatVND(total); // Cập nhật total
+    }
+    
+    // Đợi DOM tải xong
+    document.addEventListener('DOMContentLoaded', function () {
+        const cartList = document.querySelector('.cart-list');
+        const cartCountElement = document.getElementById('cart-count');
+        let count = 0;
+    
+        // Thêm sản phẩm vào giỏ hàng
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+    
+                const name = this.dataset.name;
+                const price = parseInt(this.dataset.price); // Giá sản phẩm
+                const img = this.dataset.img;
+    
+                // Tạo phần tử giỏ hàng
+                const itemHTML = `
+                    <div class="single-cart-item">
+                        <span class="product-remove">×</span>
+                        <img src="${img}" class="cart-thumb" alt="">
+                        <div class="cart-item-desc">
+                            <h6>${name}</h6>
+                            <p class="price">VNĐ ${price.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+    
+                // Thêm sản phẩm vào giỏ hàng
+                cartList.insertAdjacentHTML('beforeend', itemHTML);
+    
+                // Cập nhật số lượng và tổng tiền
+                cartCount++;
+                subtotal += price;
+                updateCartCount();
+                updateCartSummary();
+            });
+        });
+    
+        // Xóa sản phẩm khi click nút ×
+        cartList.addEventListener('click', function (e) {
+            if (e.target.classList.contains('product-remove')) {
+                const item = e.target.closest('.single-cart-item');
+                const price = parseInt(item.querySelector('.price').textContent.replace(/[^\d]/g, ''));
+    
+                // Xóa sản phẩm
+                item.remove();
+    
+                // Cập nhật số lượng và tổng tiền
+                cartCount = Math.max(0, cartCount - 1);
+                subtotal = Math.max(0, subtotal - price);
+                updateCartCount();
+                updateCartSummary();
+            }
+        });
+    });
+    
+    </script>
 <body>
     <!-- ##### Header Area Start ##### -->
     <header class="header_area">
@@ -267,11 +361,11 @@
                 <div class="col-12 col-md-6">
                     <div class="single_widget_area">
                         <div class="footer_social_area">
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Pinterest"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
-                            <a href="#" data-toggle="tooltip" data-placement="top" title="Youtube"><i class="fa fa-youtube-play" aria-hidden="true"></i></a>
+                           <a href="https://web.facebook.com/profile.php?id=61573173553936" target="_blank" data-toggle="tooltip" data-placement="top" title="Facebook">
+  <i class="fa fa-facebook" aria-hidden="true"></i>
+</a>
+
+                           
                         </div>
                     </div>
                 </div>
